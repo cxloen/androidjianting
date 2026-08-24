@@ -42,9 +42,9 @@ android.accept_sdk_license = True
 # Java类依赖
 android.gradle_dependencies =
 
-# p4a 仓库（使用 Gitee 镜像避免 GitHub 连接问题）
-p4a.url = https://gitee.com/mirrors/python-for-android.git
-p4a.branch = develop
+# p4a 仓库（CI 跑在 GitHub 上，直接用官方仓库；用稳定 tag 不用 develop）
+p4a.url = https://github.com/kivy/python-for-android.git
+p4a.branch = v2024.01.21
 
 # 启动模式
 android.allow_backup = False
