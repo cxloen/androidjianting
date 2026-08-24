@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,35 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Accept Android SDK licenses
-        run: |
-          # runner 预装了 Android SDK，但 license 未接受会导致 buildozer 下载组件时卡住。
-          # sdkmanager 不在 PATH，用完整路径调用。
-          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
-          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
-
-      - name: Install Buildozer
-        run: |
-          pip install buildozer cython
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev libltdl-dev
-
       - name: Build APK
-        run: buildozer android debug
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: echopress-debug
-          path: bin/*.apk
+          path: app/build/outputs/apk/debug/*.apk
