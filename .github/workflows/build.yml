@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -17,27 +17,22 @@ jobs:
           python-version: '3.11'
 
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK (auto-accepts licenses, installs packages)
-        uses: android-actions/setup-android@v4.0.1
-        with:
-          cmdline-tools-version: '12266719'  # 16.0,稳定版（v4.0.0 默认的 20.0/14742923 较新，兼容性差）
-          packages: >-
-            build-tools;33.0.2
-            platforms;android-33
-            ndk;25b
-          accept-android-sdk-licenses: true
-          log-accepted-android-sdk-licenses: false
-
-      - name: Export SDK env vars for Buildozer
+      - name: Setup Android SDK
         run: |
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" >> $GITHUB_ENV
-          echo "ANDROID_HOME=${ANDROID_SDK_ROOT}"     >> $GITHUB_ENV
-          echo "ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/25b" >> $GITHUB_ENV
+          # 不使用 android-actions/setup-android@v4 —— 该 action 在 ubuntu-latest 上有
+          # 已知 EACCES 权限 bug (issue #535)。这里用 runner 预装的 sdkmanager 手动安装。
+          # ANDROID_HOME 已由 runner 预设为 /usr/local/lib/android/sdk
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_HOME}" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=${ANDROID_HOME}"   >> "$GITHUB_ENV"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install "build-tools;33.0.2" "platforms;android-33" "ndk;25b"
+          echo "ANDROID_NDK_ROOT=${ANDROID_HOME}/ndk/25b" >> "$GITHUB_ENV"
 
       - name: Install Buildozer
         run: |

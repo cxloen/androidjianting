@@ -5,13 +5,11 @@
 .temp/
 
 # ============================================================
-# bin/ 目录：buildozer 的下载/构建缓存，全部不入库
-#   - SDL2/SDL2_mixer/SDL2_ttf 源码包
-#   - bin/其他/ 浏览器 HTML 缓存（含 session/CSRF token）
-# APK 由 CI 构建产出，不入库（从 Actions artifact 下载）
+# bin/ 目录：buildozer 的构建产物（APK 等），不入库
+# APK 由 CI 构建产出，从 Actions artifact 下载
+# buildozer 构建时会自动创建此目录，无需预先存在
 # ============================================================
 bin/
-!bin/.gitkeep
 
 # ============================================================
 # Python
