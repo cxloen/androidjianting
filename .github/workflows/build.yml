@@ -23,14 +23,15 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK (auto-accepts licenses, installs packages)
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v4.0.1
         with:
+          cmdline-tools-version: '12266719'  # 16.0,稳定版（v4.0.0 默认的 20.0/14742923 较新，兼容性差）
           packages: >-
             build-tools;33.0.2
             platforms;android-33
             ndk;25b
-          accept-android-sdk-licenses: 'yes'
-          log-accepted-android-sdk-licenses: 'false'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Export SDK env vars for Buildozer
         run: |
@@ -50,5 +51,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: earmonitor-debug
+          name: echopress-debug
           path: bin/*.apk
