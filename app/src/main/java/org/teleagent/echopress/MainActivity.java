@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -57,6 +58,7 @@ public class MainActivity extends Activity {
     private TextView statsText;
     private View bigButton;
     private View levelCircle;
+    private ImageButton closeButton;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -107,6 +109,15 @@ public class MainActivity extends Activity {
         statsText = findViewById(R.id.stats_text);
         bigButton = findViewById(R.id.big_button);
         levelCircle = findViewById(R.id.level_circle);
+        closeButton = findViewById(R.id.close_button);
+
+        // 关闭按钮：清空录音文件并退出程序
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shutdownAndExit();
+            }
+        });
 
         // 清理上次残留
         cleanupStaleFiles();
@@ -368,6 +379,26 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    // ===================== 关闭程序 =====================
+
+    private void shutdownAndExit() {
+        // 停止录音和回放
+        handler.removeCallbacks(levelUpdater);
+        handler.removeCallbacks(longPressRunnable);
+        if (recorder != null) {
+            try { recorder.stop(); } catch (Exception e) {}
+            try { recorder.release(); } catch (Exception e) {}
+            recorder = null;
+        }
+        stopPlayback();
+        // 清空所有录音文件
+        safeDelete(recordedFile);
+        recordedFile = null;
+        cleanupStaleFiles();
+        // 退出程序
+        finishAffinity();
     }
 
     // ===================== 生命周期 =====================

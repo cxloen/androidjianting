@@ -16,6 +16,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.button import Button
 from kivy.graphics import Color, Rectangle, Line, Ellipse
 from kivy.clock import Clock
 from kivy.utils import platform as kivy_platform
@@ -310,6 +311,20 @@ class EchoPressApp(App):
         )
         root.add_widget(self.title_label)
 
+        # 关闭按钮（右上角）
+        self.close_btn = Button(
+            text='X',
+            size_hint=(None, None),
+            size=(44, 44),
+            pos_hint={'top': 0.72, 'right': 1},
+            background_color=(0.8, 0.27, 0.27, 1),
+            color=(1, 1, 1, 1),
+            font_size='18sp',
+            bold=True,
+        )
+        self.close_btn.bind(on_release=self._on_close_pressed)
+        root.add_widget(self.close_btn)
+
         # 取消提示
         self.cancel_hint = Label(
             text='[size=16]↑ 上滑取消[/size]',
@@ -555,6 +570,24 @@ class EchoPressApp(App):
                         pass
         except Exception:
             pass
+
+    # ===================== 关闭程序 =====================
+    def _on_close_pressed(self, *args):
+        """关闭按钮：清空录音文件并退出程序"""
+        self._recording = False
+        try:
+            self.recorder.stop()
+        except Exception:
+            pass
+        try:
+            self.player.stop()
+        except Exception:
+            pass
+        if self.recorded_path:
+            safe_remove(self.recorded_path)
+            self.recorded_path = None
+        self._cleanup_stale_files()
+        App.get_running_app().stop()
 
     def on_stop(self):
         # App 退出时确保清理
